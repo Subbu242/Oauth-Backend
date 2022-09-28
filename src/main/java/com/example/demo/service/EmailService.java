@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.controller.UsersController;
 import com.example.demo.model.EmailRequest;
 import com.example.demo.model.Users;
 import com.sendgrid.Method;
@@ -23,7 +24,7 @@ import com.sendgrid.helpers.mail.objects.Personalization;
 @Service
 public class EmailService {
 	public String otp;
-	@Autowired
+	@Autowired	
 	SendGrid sendGrid;	
 	public Response sendemail(Users users) {
 		Random random=new Random();		

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.management.loading.PrivateClassLoader;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,7 @@ public class UsersController {
  private EmailService emailService;
  @Autowired
  private UsersRepository usersRepository;
+
  
  //Get Users
  @GetMapping("Users")
@@ -47,6 +49,15 @@ public class UsersController {
 	 Users users=usersRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found for this id :: "+userId));
 	 return ResponseEntity.ok().body(users);
  }
+ 
+//Get Users by email
+@GetMapping("/User/{email}")
+public ResponseEntity<Users> getAllUsersByEmail(@PathVariable(value="email") String Email) 
+		 throws ResourceNotFoundException {
+	 Users users=usersRepository.findByEmail(Email).orElseThrow(() -> new ResourceNotFoundException("User not found for this id :: "+Email));
+	 return ResponseEntity.ok().body(users);
+}
+
  //Get otp by email
  @GetMapping("/otp/{email}")
  public ResponseEntity<String> getAllUsersByOtp(@PathVariable(value="email") String Email) 
@@ -61,30 +72,40 @@ public ResponseEntity<String> getAllUsersByBtn(@PathVariable(value="email") Stri
 	 Users users=usersRepository.findByEmail(Email).orElseThrow(() -> new ResourceNotFoundException("User not found for this id :: "+Email));
 	 return ResponseEntity.ok().body(users.btn);
 }
-
  //save Users
  @PostMapping("Users")
  public Object createUsers(@RequestBody Users users) {
 	  Users user=usersRepository.findByEmail(users.getEmail()).orElse(null);
 	    if(user == null){
-	   	 Response response=emailService.sendemail(users);
+	    	Response response=emailService.sendemail(users);
 	    	return this.usersRepository.save(users);
 	    }
 	    else return "A User with that email already exists";
 	}
-	 
- 
+
+ @PostMapping("Users/send")
+ public boolean postBody(@RequestBody Users users ) {
+  Users OTP= usersRepository.findByOtp(users.getOtp()).orElse(null);
+	 if((OTP!=null)&& (OTP.getEmail().equals(users.getEmail())))
+	 {
+		 return true;
+	 }
+	 else {
+		return false;
+	}
+ }
+
  //Update Users
  @PutMapping("Users/{email}")
  public ResponseEntity<Users> updateUsers(@PathVariable(value = "email") String Email,
  @Valid @RequestBody Users UsersDetails) throws ResourceNotFoundException{
 	 
 	 Users users=usersRepository.findByEmail(Email).orElseThrow(() -> new ResourceNotFoundException("User not found for this id :: "+Email));
-	 
+	 Response response=emailService.sendemail(users);
 	 users.setUser(UsersDetails.getUser());
 	 users.setEmail(UsersDetails.getEmail());
 	 users.setBtn(UsersDetails.getBtn());
-	 users.setOtp(UsersDetails.getOtp());
+//	 users.setOtp(UsersDetails.getOtp());
 	 return ResponseEntity.ok(this.usersRepository.save(users));
  }
  

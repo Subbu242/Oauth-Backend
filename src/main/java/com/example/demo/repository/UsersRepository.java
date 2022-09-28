@@ -10,5 +10,7 @@ import com.example.demo.model.Users;
 public interface UsersRepository extends JpaRepository<Users, Long> {
 
 	Optional<Users> findByEmail(String email);
+
+	Optional<Users> findByOtp(String otp);
 	
 }

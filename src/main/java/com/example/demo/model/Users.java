@@ -5,8 +5,8 @@ import javax.persistence.*;
 @Table(name="Users")
 public class Users {
 	    @Id
-	    @GeneratedValue(strategy = GenerationType.IDENTITY)	
-	    private Long id;
+	    @GeneratedValue(strategy = GenerationType.IDENTITY)
+		public Long id;
 	   
 		@Column(unique=true ,name="email")
 	    private String email;
