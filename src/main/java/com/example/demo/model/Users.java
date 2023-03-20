@@ -1,6 +1,9 @@
 package com.example.demo.model;
 import javax.persistence.*;
 
+import javax.persistence.Id;
+//import com.twilio.type.PhoneNumber;
+
 @Entity
 @Table(name="Users")
 public class Users {
@@ -16,7 +19,17 @@ public class Users {
 		public String btn;
 	    @Column(name="otp")
 	    public String otp;
-
+//	    @Column(name="phone")
+//	    public String phone;
+	    
+//	    public String getPhone() {
+//			return phone;
+//		}
+//
+//		public void setPhone(String phone) {
+//			this.phone = phone;
+//		}		
+	    
 	    public String getOtp() {
 			return otp;
 		}
@@ -36,13 +49,14 @@ public class Users {
 		public Users() {
 			super();
 		}
-		
-		public Users(String email, String user, String btn, String otp) {
+
+		public Users(String email, String user, String btn, String otp, String phone) {
 			super();
 			this.email = email;
 			this.user = user;
 			this.btn = btn;
 			this.otp = otp;
+//			this.phone = phone;
 		}
 
 		public Long getId() {

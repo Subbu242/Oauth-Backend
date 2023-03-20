@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import java.util.HashMap;
+
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +26,10 @@ import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Users;
 import com.example.demo.repository.UsersRepository;
 import com.example.demo.service.EmailService;
+//import com.example.demo.service.TwilioService;
 import com.sendgrid.Response;
+//import com.twilio.type.PhoneNumber;
+
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/v1/")
@@ -34,6 +38,8 @@ public class UsersController {
  private EmailService emailService;
  @Autowired
  private UsersRepository usersRepository;
+ @Autowired
+// private TwilioService twilio;
 
  
  //Get Users
@@ -54,7 +60,7 @@ public class UsersController {
 @GetMapping("/User/{email}")
 public ResponseEntity<Users> getAllUsersByEmail(@PathVariable(value="email") String Email) 
 		 throws ResourceNotFoundException {
-	 Users users=usersRepository.findByEmail(Email).orElseThrow(() -> new ResourceNotFoundException("User not found for this id :: "+Email));
+	 Users users=usersRepository.findByEmail(Email).orElseThrow(() -> new ResourceNotFoundException("User not found for this id"));
 	 return ResponseEntity.ok().body(users);
 }
 
@@ -62,16 +68,23 @@ public ResponseEntity<Users> getAllUsersByEmail(@PathVariable(value="email") Str
  @GetMapping("/otp/{email}")
  public ResponseEntity<String> getAllUsersByOtp(@PathVariable(value="email") String Email) 
 		 throws ResourceNotFoundException {
-	 Users users=usersRepository.findByEmail(Email).orElseThrow(() -> new ResourceNotFoundException("User not found for this id :: "+Email));
+	 Users users=usersRepository.findByEmail(Email).orElseThrow(() -> new ResourceNotFoundException("OTP not found for this id :: "+Email));
 	 return ResponseEntity.ok().body(users.otp);
  }
 //Get btn by email
 @GetMapping("/btn/{email}")
 public ResponseEntity<String> getAllUsersByBtn(@PathVariable(value="email") String Email) 
 		 throws ResourceNotFoundException {
-	 Users users=usersRepository.findByEmail(Email).orElseThrow(() -> new ResourceNotFoundException("User not found for this id :: "+Email));
+	 Users users=usersRepository.findByEmail(Email).orElse(null);
 	 return ResponseEntity.ok().body(users.btn);
 }
+//Get phone by email
+//@GetMapping("/phone/{email}")
+//public ResponseEntity<String> getAllUsersByPhone(@PathVariable(value="email") String Email) 
+//		 throws ResourceNotFoundException {
+//	 Users users=usersRepository.findByEmail(Email).orElse(null);
+//	 return ResponseEntity.ok().body(users.phone);
+//}
  //save Users
  @PostMapping("Users")
  public Object createUsers(@RequestBody Users users) {
@@ -82,7 +95,23 @@ public ResponseEntity<String> getAllUsersByBtn(@PathVariable(value="email") Stri
 	    }
 	    else return "A User with that email already exists";
 	}
-
+ 
+ @PostMapping("Users/withoutOtp")
+ public Object createUser(@RequestBody Users users) {
+	  Users user=usersRepository.findByEmail(users.getEmail()).orElse(null);
+	    	return this.usersRepository.save(users);
+	}
+ 
+// @PostMapping("phone")
+// public Object Phone(@RequestBody Users users) {
+//	  Users user=usersRepository.findByEmail(users.getEmail()).orElse(null);
+//	  if(user == null){
+//	  String response=twilio.sendsms(users);
+//	    	return this.usersRepository.save(users);
+//	  }
+//	  else return "A User with that email already exists";
+//	}
+ 
  @PostMapping("Users/send")
  public boolean postBody(@RequestBody Users users ) {
   Users OTP= usersRepository.findByOtp(users.getOtp()).orElse(null);
@@ -109,6 +138,19 @@ public ResponseEntity<String> getAllUsersByBtn(@PathVariable(value="email") Stri
 	 return ResponseEntity.ok(this.usersRepository.save(users));
  }
  
+//Update MFA Button
+@PutMapping("User/{email}")
+public ResponseEntity<Users> updateMFA(@PathVariable(value = "email") String Email,
+@Valid @RequestBody Users UsersDetails) throws ResourceNotFoundException{
+	 
+	 Users users=usersRepository.findByEmail(Email).orElseThrow(() -> new ResourceNotFoundException("User not found for this id :: "+Email));
+	 users.setUser(UsersDetails.getUser());
+	 users.setEmail(UsersDetails.getEmail());
+	 users.setBtn(UsersDetails.getBtn());
+//     users.setOtp(UsersDetails.getOtp());
+	 return ResponseEntity.ok(this.usersRepository.save(users));
+}
+
  //delete Users
  @DeleteMapping("Users/{id}")
  public Map<String,Boolean> deleteUsers(@PathVariable(value="id") Long userId) throws ResourceNotFoundException{

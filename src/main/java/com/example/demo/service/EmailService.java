@@ -34,6 +34,7 @@ public class EmailService {
 			sb.append(random.nextInt(10));
 		} otp=sb.toString();
 		  users.setOtp(otp);
+		  
 		String subject="User Verification";
 		 Mail mail = new Mail(new Email("rdhun001@odu.edu"), subject, new Email(users.getEmail()),new Content("text/plain",otp));
 		 mail.setReplyTo(new Email("subhusubhash24@gmail.com"));
